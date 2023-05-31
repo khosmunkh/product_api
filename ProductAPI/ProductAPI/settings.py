@@ -77,20 +77,20 @@ WSGI_APPLICATION = 'ProductAPI.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': os.environ.get("DB_NAME", "auction"),
-        'USER': os.environ.get("DB_USER", "postgres"),
-        'PASSWORD': os.environ.get("DB_PASSWORD", "12345"),
+        'USER': os.environ.get("DB_USER", "root"),
+        'PASSWORD': os.environ.get("DB_PASSWORD", ""),
         'HOST': os.environ.get("DB_HOST", "localhost"),
-        'PORT': '5432',
+        'PORT': '3306',
     },
     'auction': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': "auction",
-        'USER': "postgres",
-        'PASSWORD':"postgres",
+        'USER': "root",
+        'PASSWORD':"",
         'HOST': "localhost",
-        'PORT': '5432',
+        'PORT': '3306',
     }
 }
 
