@@ -1,15 +1,14 @@
-import json
 import re
+import json
 import threading
-import psycopg2
 import requests
 from lxml import html
-from psycopg2 import pool
+import mysql.connector
 
 host = 'localhost'
-db_user = 'postgres'
-db_password = 'postgres'
-port = 5432
+db_user = 'root'
+db_password = ''
+port = 3306
 database = 'auction'
 table_name = 'product_data'
 
@@ -23,28 +22,25 @@ class Auction:
             'Referer': 'https://www.auction.co.kr/',
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36',
         }
-        self.connection_pool = self.create_connection_pool()
+        self.connection = self.create_connection()
         self.create_table()
 
-    def create_connection_pool(self):
-        return psycopg2.pool.SimpleConnectionPool(
-            minconn=1,
-            maxconn=10,
+    def create_connection(self):
+        return mysql.connector.connect(
             host=host,
-            port=port,
             user=db_user,
             password=db_password,
+            port=port,
             database=database
         )
 
     def create_table(self):
-        connection = self.connection_pool.getconn()
-        cursor = connection.cursor()
+        cursor = self.connection.cursor()
 
         try:
             cursor.execute(f"""
             CREATE TABLE IF NOT EXISTS {table_name} (
-                id SERIAL PRIMARY KEY,
+                id INT AUTO_INCREMENT PRIMARY KEY,
                 categories_id TEXT,
                 categories TEXT,
                 image TEXT,
@@ -54,13 +50,12 @@ class Auction:
                 color TEXT
             )
             """)
-            connection.commit()
+            self.connection.commit()
             print(f"Table {table_name} created successfully.")
         except Exception as e:
             print(e)
         finally:
             cursor.close()
-            self.connection_pool.putconn(connection)
 
     def auction_url(self):
         response0 = requests.get(
@@ -217,8 +212,7 @@ class Auction:
         self.insert_to_db(data)
 
     def insert_to_db(self, table_dict):
-        connection = self.connection_pool.getconn()
-        cursor = connection.cursor()
+        cursor = self.connection.cursor()
 
         field_list = []
         value_list = []
@@ -232,13 +226,12 @@ class Auction:
 
         try:
             cursor.execute(insert_db, tuple(value_list))
-            connection.commit()
+            self.connection.commit()
             print(f'Data Inserted into {table_name}')
         except Exception as e:
             print(e)
         finally:
             cursor.close()
-            self.connection_pool.putconn(connection)
 
 
 # Scrape hiij ehleh
